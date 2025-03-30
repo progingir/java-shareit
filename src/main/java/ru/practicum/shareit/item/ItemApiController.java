@@ -44,6 +44,12 @@ public class ItemApiController {
                                                    @PathVariable Long id,
                                                    @RequestBody @Valid UpdateItemRequest request) {
         log.info("Обновление предмета с ID: {} пользователем с ID: {}", id, userId);
+
+        if (id == null) {
+            log.warn("Получен запрос на обновление предмета с null ID от пользователя с ID: {}", userId);
+            return ResponseEntity.badRequest().body(null);
+        }
+
         return ResponseEntity.ok(itemManager.modifyItem(request, userId, id));
     }
 

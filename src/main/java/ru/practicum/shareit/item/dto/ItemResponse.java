@@ -8,7 +8,7 @@ import ru.practicum.shareit.item.model.ItemStatus;
 @Data
 @AllArgsConstructor
 public class ItemResponse {
-    private Long itemId;
+    private Long id;
     private String title;
     private String details;
     private ItemStatus availability;
