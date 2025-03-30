@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class UpdateUserRequest {
-    private String fullName;
+    private String name;
     @Email(message = "Неверный формат email")
-    private String emailAddress;
+    private String address;
 }

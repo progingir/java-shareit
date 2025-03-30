@@ -54,7 +54,7 @@ public class UserManagerImpl implements UserManager {
                     log.warn("Пользователь с ID {} не найден для обновления", userId);
                     return new UserNotFoundException("Пользователь с ID " + userId + " не найден");
                 });
-        String newEmail = request.getEmailAddress();
+        String newEmail = request.getAddress();
         if (newEmail != null && !newEmail.equals(user.getEmail()) && userStorage.emailExists(newEmail)) {
             throw new EmailDuplicateException("Пользователь с email " + newEmail + " уже существует", 409);
         }

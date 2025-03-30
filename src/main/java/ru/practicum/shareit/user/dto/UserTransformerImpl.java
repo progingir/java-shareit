@@ -20,8 +20,8 @@ public class UserTransformerImpl implements UserTransformer {
 
     @Override
     public User applyUpdates(UpdateUserRequest updates, User user) {
-        if (updates.getFullName() != null) user.setName(updates.getFullName());
-        if (updates.getEmailAddress() != null) user.setEmail(updates.getEmailAddress());
+        if (updates.getName() != null) user.setName(updates.getName());
+        if (updates.getAddress() != null) user.setEmail(updates.getAddress());
         return user;
     }
 }
