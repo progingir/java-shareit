@@ -110,20 +110,11 @@ public class ItemManagerImpl implements ItemManager {
 
     @Override
     public List<ItemResponse> searchItems(String query, Long userId) {
-        // Проверка существования пользователя
         userStorage.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с ID {} не найден", userId);
                     return new UserNotFoundException("Пользователь с ID " + userId + " не найден");
                 });
-
-        // Если query пустой или null, возвращаем все предметы пользователя
-        if (query == null || query.isEmpty()) {
-            log.debug("Поиск с пустым запросом, возвращаем все предметы пользователя с ID: {}", userId);
-            return fetchUserItems(userId);
-        }
-
-        // Иначе выполняем текущую логику поиска по тексту
         List<ItemResponse> items = itemStorage.findByText(query).stream()
                 .map(transformer::toResponse)
                 .toList();
