@@ -9,8 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class NewUserRequest {
     @NotBlank(message = "Имя не может быть пустым")
-    private String fullName;
+    private String name;
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Неверный формат email")
-    private String emailAddress;
+    private String email;
 }
