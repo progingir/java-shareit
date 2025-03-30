@@ -12,5 +12,5 @@ public class NewUserRequest {
     private String name;
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Неверный формат email")
-    private String address;
+    private String email;
 }

@@ -14,14 +14,14 @@ public class UserTransformerImpl implements UserTransformer {
     public User toUser(NewUserRequest request) {
         User user = new User();
         user.setName(request.getName());
-        user.setEmail(request.getAddress());
+        user.setEmail(request.getEmail());
         return user;
     }
 
     @Override
     public User applyUpdates(UpdateUserRequest updates, User user) {
         if (updates.getName() != null) user.setName(updates.getName());
-        if (updates.getAddress() != null) user.setEmail(updates.getAddress());
+        if (updates.getEmail() != null) user.setEmail(updates.getEmail());
         return user;
     }
 }

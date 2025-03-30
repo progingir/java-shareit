@@ -9,5 +9,5 @@ import lombok.Data;
 public class UpdateUserRequest {
     private String name;
     @Email(message = "Неверный формат email")
-    private String address;
+    private String email;
 }

@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ApiError {
-    private String errorMessage;
-    private int errorCode;
+    private String message;
+    private int responseCode;
 }
