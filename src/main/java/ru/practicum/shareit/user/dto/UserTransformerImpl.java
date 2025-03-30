@@ -13,8 +13,8 @@ public class UserTransformerImpl implements UserTransformer {
     @Override
     public User toUser(NewUserRequest request) {
         User user = new User();
-        user.setName(request.getFullName());
-        user.setEmail(request.getEmailAddress());
+        user.setName(request.getName());
+        user.setEmail(request.getAddress());
         return user;
     }
 
