@@ -55,21 +55,16 @@ public class ItemStorageImpl implements ItemStorage {
         storage.remove(id);
     }
 
-//    @Override
-//    public List<Item> findByText(String query) {
-//        String searchText = query.toLowerCase();
-//        return storage.values().stream()
-//                .filter(item -> item.getStatus() == ItemStatus.AVAILABLE &&
-//                        (item.getName().toLowerCase().contains(searchText) ||
-//                                item.getDescription().toLowerCase().contains(searchText)))
-//                .toList();
-//    }
-
     @Override
     public List<Item> findByText(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of(); // Пустой список для null или пустого запроса
+        }
         String lowerCaseQuery = query.toLowerCase();
-        return storage.values().stream().filter(i ->
-                (i.getName().toLowerCase().contains(lowerCaseQuery) || i.getDescription().toLowerCase()
-                        .contains(lowerCaseQuery)) && i.getStatus() == ItemStatus.AVAILABLE).toList();
+        return storage.values().stream()
+                .filter(i -> i.getStatus() == ItemStatus.AVAILABLE &&
+                        ((i.getName() != null && i.getName().toLowerCase().contains(lowerCaseQuery)) ||
+                                (i.getDescription() != null && i.getDescription().toLowerCase().contains(lowerCaseQuery))))
+                .toList();
     }
 }

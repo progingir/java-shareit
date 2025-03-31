@@ -9,12 +9,12 @@ import ru.practicum.shareit.item.model.ItemStatus;
 @AllArgsConstructor
 public class ItemResponse {
     private Long id;
-    private String title;
-    private String details;
-    private ItemStatus availability;
+    private String name;
+    private String description;
+    private ItemStatus status;
 
     @JsonProperty("available")
     public boolean isAvailable() {
-        return availability == ItemStatus.AVAILABLE;
+        return status == ItemStatus.AVAILABLE;
     }
 }
