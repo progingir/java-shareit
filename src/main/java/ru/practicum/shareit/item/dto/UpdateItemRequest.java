@@ -9,6 +9,7 @@ public class UpdateItemRequest {
     private String name;
     private String description;
     private Boolean available;
+
     @JsonCreator
     public UpdateItemRequest(@JsonProperty("name") String name,
                              @JsonProperty("description") String description,
