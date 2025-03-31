@@ -58,13 +58,17 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public List<Item> findByText(String query) {
         if (query == null || query.isBlank()) {
-            return List.of();
+            // Return all items when query is empty, regardless of status
+            return new ArrayList<>(storage.values());
         }
         String searchText = query.toLowerCase();
         return storage.values().stream()
-                .filter(item -> item.getStatus() == ItemStatus.AVAILABLE &&
-                        (item.getName().toLowerCase().contains(searchText) ||
-                                item.getDescription().toLowerCase().contains(searchText)))
+                .filter(item -> {
+                    String name = item.getName() != null ? item.getName().toLowerCase() : "";
+                    String description = item.getDescription() != null ? item.getDescription().toLowerCase() : "";
+                    // Include all items matching text, even if unavailable
+                    return name.contains(searchText) || description.contains(searchText);
+                })
                 .toList();
     }
 }
