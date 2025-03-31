@@ -57,9 +57,6 @@ public class ItemStorageImpl implements ItemStorage {
 
     @Override
     public List<Item> findByText(String query) {
-        if (query == null || query.isBlank()) {
-            return List.of();
-        }
         String searchText = query.toLowerCase();
         return storage.values().stream()
                 .filter(item -> item.getStatus() == ItemStatus.AVAILABLE &&
