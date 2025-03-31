@@ -11,5 +11,5 @@ public class Item {
     private String name;
     private String description;
     private User owner;
-    private ItemStatus status;
+    private boolean available = false;
 }

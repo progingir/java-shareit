@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import ru.practicum.shareit.item.model.ItemStatus;
 
 @Data
 public class NewItemRequest {
@@ -13,15 +12,15 @@ public class NewItemRequest {
     private String name;
     @NotBlank(message = "Описание не может быть пустым")
     private String description;
-    @NotNull(message = "Статус должен быть указан")
-    private ItemStatus status;
+    @NotNull(message = "Доступность должна быть указана")
+    private Boolean available;
 
     @JsonCreator
     public NewItemRequest(@JsonProperty("name") String name,
                           @JsonProperty("description") String description,
-                          @JsonProperty("available") Boolean isAvailable) {
+                          @JsonProperty("available") Boolean available) {
         this.name = name;
         this.description = description;
-        this.status = isAvailable == null ? null : (isAvailable ? ItemStatus.AVAILABLE : ItemStatus.UNAVAILABLE);
+        this.available = available; // Прямое присваивание Boolean
     }
 }

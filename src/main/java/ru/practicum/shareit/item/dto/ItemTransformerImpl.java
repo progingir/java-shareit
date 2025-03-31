@@ -8,7 +8,7 @@ public class ItemTransformerImpl implements ItemTransformer {
 
     @Override
     public ItemResponse toResponse(Item item) {
-        return new ItemResponse(item.getId(), item.getName(), item.getDescription(), item.getStatus());
+        return new ItemResponse(item.getId(), item.getName(), item.getDescription(), item.isAvailable());
     }
 
     @Override
@@ -16,7 +16,7 @@ public class ItemTransformerImpl implements ItemTransformer {
         Item item = new Item();
         item.setName(request.getName());
         item.setDescription(request.getDescription());
-        item.setStatus(request.getStatus());
+        item.setAvailable(request.getAvailable() != null && request.getAvailable()); // Учитываем null
         return item;
     }
 
@@ -24,7 +24,7 @@ public class ItemTransformerImpl implements ItemTransformer {
     public Item applyUpdates(UpdateItemRequest updates, Item item) {
         if (updates.getName() != null) item.setName(updates.getName());
         if (updates.getDescription() != null) item.setDescription(updates.getDescription());
-        if (updates.getStatus() != null) item.setStatus(updates.getStatus());
+        if (updates.getAvailable() != null) item.setAvailable(updates.getAvailable());
         return item;
     }
 }

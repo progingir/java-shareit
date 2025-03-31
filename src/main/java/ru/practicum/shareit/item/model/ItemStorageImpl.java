@@ -46,7 +46,7 @@ public class ItemStorageImpl implements ItemStorage {
             Item existing = storage.get(itemId);
             existing.setName(updatedItem.getName());
             existing.setDescription(updatedItem.getDescription());
-            existing.setStatus(updatedItem.getStatus());
+            existing.setAvailable(updatedItem.isAvailable());
         }
     }
 
@@ -58,11 +58,11 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public List<Item> findByText(String query) {
         if (query == null || query.isBlank()) {
-            return List.of(); // Пустой список для null или пустого запроса
+            return List.of();
         }
         String lowerCaseQuery = query.toLowerCase();
         return storage.values().stream()
-                .filter(i -> i.getStatus() == ItemStatus.AVAILABLE &&
+                .filter(i -> i.isAvailable() &&
                         ((i.getName() != null && i.getName().toLowerCase().contains(lowerCaseQuery)) ||
                                 (i.getDescription() != null && i.getDescription().toLowerCase().contains(lowerCaseQuery))))
                 .toList();
