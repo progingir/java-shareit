@@ -113,11 +113,8 @@ public class ItemManagerImpl implements ItemManager {
         userStorage.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
         if (query.isBlank()) {
-            log.debug("Запрос поиска пустой, возвращаем все доступные предметы");
-            return itemStorage.fetchAll().stream()
-                    .filter(item -> item.getStatus() == ItemStatus.AVAILABLE)
-                    .map(transformer::toResponse)
-                    .toList();
+            log.debug("Запрос поиска пустой, возвращаем пустой список");
+            return List.of();
         }
         return itemStorage.findByText(query).stream()
                 .map(transformer::toResponse)
