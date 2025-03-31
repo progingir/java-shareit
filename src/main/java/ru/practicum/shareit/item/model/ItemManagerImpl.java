@@ -108,16 +108,35 @@ public class ItemManagerImpl implements ItemManager {
         log.debug("Удален предмет с ID {} пользователем с ID {}", id, userId);
     }
 
+//    @Override
+//    public List<ItemResponse> searchItems(String query, Long userId) {
+//        userStorage.findById(userId)
+//                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
+//        if (query.isBlank()) {
+//            log.debug("Запрос поиска пустой, возвращаем пустой список");
+//            return List.of();
+//        }
+//        return itemStorage.findByText(query).stream()
+//                .map(transformer::toResponse)
+//                .toList();
+//    }
+
     @Override
     public List<ItemResponse> searchItems(String query, Long userId) {
-        userStorage.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
+        if (userStorage.findById(userId).isEmpty()) {
+            log.warn("User with id {} not found", userId);
+            throw new UserNotFoundException(
+                    "User with id " + userId + " not found");
+        }
         if (query.isBlank()) {
-            log.debug("Запрос поиска пустой, возвращаем пустой список");
+            log.debug("Search query is blank, returning empty list");
             return List.of();
         }
-        return itemStorage.findByText(query).stream()
-                .map(transformer::toResponse)
+
+        List<ItemResponse> items = itemStorage.findByText(query).stream().map(transformer::toResponse)
                 .toList();
+        log.debug("Found {} items by query: {}", items.size(), query);
+        return items;
+
     }
 }
