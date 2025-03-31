@@ -57,14 +57,14 @@ public class ItemStorageImpl implements ItemStorage {
 
     @Override
     public List<Item> findByText(String query) {
-        // Если запрос пустой или null, возвращаем все предметы
         if (query == null || query.isBlank()) {
-            return new ArrayList<>(storage.values());
+            return List.of();
         }
         String searchText = query.toLowerCase();
         return storage.values().stream()
-                .filter(item -> item.getName().toLowerCase().contains(searchText) ||
-                        item.getDescription().toLowerCase().contains(searchText))
+                .filter(item -> item.getStatus() == ItemStatus.AVAILABLE &&
+                        (item.getName().toLowerCase().contains(searchText) ||
+                                item.getDescription().toLowerCase().contains(searchText)))
                 .toList();
     }
 }
