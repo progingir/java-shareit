@@ -21,6 +21,6 @@ public class NewItemRequest {
                           @JsonProperty("available") Boolean available) {
         this.name = name;
         this.description = description;
-        this.available = available; // Прямое присваивание Boolean
+        this.available = available;
     }
 }
