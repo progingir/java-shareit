@@ -33,10 +33,3 @@ public class Booking {
     @Column(name = "status", nullable = false)
     private BookingStatus status;
 }
-
-enum BookingStatus {
-    WAITING,
-    APPROVED,
-    REJECTED,
-    CANCELED
-}
