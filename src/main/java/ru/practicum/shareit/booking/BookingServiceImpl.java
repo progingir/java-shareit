@@ -27,7 +27,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        Item item = itemRepository.findById(bookingDto.getItem())
+        Item item = itemRepository.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new ItemNotFoundException("Item not found"));
         if (!item.isAvailable()) {
             throw new IllegalArgumentException("Item is not available");
@@ -152,8 +152,8 @@ public class BookingServiceImpl implements BookingService {
         dto.setId(booking.getId());
         dto.setStart(booking.getStart());
         dto.setEnd(booking.getEnd());
-        dto.setItem(booking.getItem().getId());
-        dto.setBooker(booking.getBooker().getId());
+        dto.setItemId(booking.getItem().getId());
+        dto.setBookerId(booking.getBooker().getId());
         dto.setStatus(booking.getStatus().name());
         return dto;
     }
