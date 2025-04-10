@@ -16,12 +16,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserManagerImpl implements UserManager {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository; // Заменяем UserStorage на UserRepository
     private final UserTransformer transformer;
 
     @Override
     public List<UserResponse> fetchAllUsers() {
-        List<UserResponse> users = userStorage.fetchAll().stream()
+        List<UserResponse> users = userRepository.findAll().stream()
                 .map(transformer::toResponse)
                 .toList();
         log.debug("Получено {} пользователей", users.size());
@@ -31,15 +31,17 @@ public class UserManagerImpl implements UserManager {
     @Override
     public UserResponse addUser(NewUserRequest request) {
         User user = transformer.toUser(request);
-        Long userId = userStorage.add(user);
-        user.setId(userId);
-        log.debug("Добавлен новый пользователь: {}", user);
-        return transformer.toResponse(user);
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new EmailDuplicateException("Пользователь с email " + user.getEmail() + " уже существует", 409);
+        }
+        User savedUser = userRepository.save(user); // Сохраняем через JPA
+        log.debug("Добавлен новый пользователь: {}", savedUser);
+        return transformer.toResponse(savedUser);
     }
 
     @Override
     public UserResponse findUserById(Long id) {
-        User user = userStorage.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с ID {} не найден", id);
                     return new UserNotFoundException("Пользователь с ID " + id + " не найден");
@@ -49,29 +51,29 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public UserResponse modifyUser(UpdateUserRequest request, Long userId) {
-        User user = userStorage.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с ID {} не найден для обновления", userId);
                     return new UserNotFoundException("Пользователь с ID " + userId + " не найден");
                 });
         String newEmail = request.getEmail();
-        if (newEmail != null && !newEmail.equals(user.getEmail()) && userStorage.emailExists(newEmail)) {
+        if (newEmail != null && !newEmail.equals(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
             throw new EmailDuplicateException("Пользователь с email " + newEmail + " уже существует", 409);
         }
         User updatedUser = transformer.applyUpdates(request, user);
-        userStorage.modify(updatedUser);
+        updatedUser = userRepository.save(updatedUser); // Сохраняем изменения через JPA
         log.debug("Обновлен пользователь: {}", updatedUser);
         return transformer.toResponse(updatedUser);
     }
 
     @Override
     public void removeUser(Long id) {
-        userStorage.findById(id)
+        userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с ID {} не найден для удаления", id);
                     return new UserNotFoundException("Пользователь с ID " + id + " не найден");
                 });
-        userStorage.remove(id);
+        userRepository.deleteById(id);
         log.debug("Удален пользователь с ID {}", id);
     }
 }
