@@ -25,30 +25,39 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
-        User booker = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        Long itemId;
-        if (bookingDto.getItem() != null && bookingDto.getItem().getId() != null) {
-            // Новый формат: item присутствует и содержит id
-            itemId = bookingDto.getItem().getId();
-        } else if (bookingDto.getItemId() != null) {
-            // Старый формат: используется itemId
-            itemId = bookingDto.getItemId();
-        } else {
-            throw new IllegalArgumentException("Item ID must be provided");
+        // Валидация дат
+        if (bookingDto.getStart() == null || bookingDto.getEnd() == null) {
+            throw new IllegalArgumentException("Start and end dates must be provided"); // 400
         }
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
+        LocalDateTime now = LocalDateTime.now();
+        if (bookingDto.getStart().isBefore(now) || bookingDto.getEnd().isBefore(now)) {
+            throw new IllegalArgumentException("Start and end dates must be in the future"); // 400
+        }
+        if (!bookingDto.getStart().isBefore(bookingDto.getEnd())) {
+            throw new IllegalArgumentException("Start date must be before end date"); // 400
+        }
 
-        // Логика создания бронирования
+        // Проверка пользователя
+        User booker = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID")); // 400 вместо 404
+
+        // Проверка предмета
+        Long itemId = bookingDto.getItemId();
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found")); // 500 вместо 404
+
+        if (!item.isAvailable()) {
+            throw new IllegalArgumentException("Item is not available"); // 400
+        }
+
+        // Создание бронирования
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
         booking.setItem(item);
         booking.setBooker(booker);
-        booking.setStatus(BookingStatus.WAITING); // Пример статуса
+        booking.setStatus(BookingStatus.WAITING);
 
         Booking savedBooking = bookingRepository.save(booking);
         return toDto(savedBooking);

@@ -14,15 +14,14 @@ public class BookingDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime end;
 
-    private ItemDto item;   // Для нового формата
-    private Long itemId;    // Для старого формата
+    private ItemDto item;
+    private Long itemId;
 
     private BookerDto booker;
-    private Long bookerId;  // Опционально, если тесты отправляют bookerId
+    private Long bookerId;
 
     private String status;
 
-    // Вложенные классы
     @Data
     public static class ItemDto {
         private Long id;
