@@ -27,7 +27,11 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        Item item = itemRepository.findById(bookingDto.getItemId())
+        Long itemId = bookingDto.getItem() != null ? bookingDto.getItem().getId() : null;
+        if (itemId == null) {
+            throw new IllegalArgumentException("Item ID must be provided");
+        }
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException("Item not found"));
         if (!item.isAvailable()) {
             throw new IllegalArgumentException("Item is not available");
@@ -152,8 +156,17 @@ public class BookingServiceImpl implements BookingService {
         dto.setId(booking.getId());
         dto.setStart(booking.getStart());
         dto.setEnd(booking.getEnd());
-        dto.setItemId(booking.getItem().getId());
-        dto.setBookerId(booking.getBooker().getId());
+
+        BookingDto.ItemDto itemDto = new BookingDto.ItemDto();
+        itemDto.setId(booking.getItem().getId());
+        itemDto.setName(booking.getItem().getName());
+        dto.setItem(itemDto);
+
+        BookingDto.BookerDto bookerDto = new BookingDto.BookerDto();
+        bookerDto.setId(booking.getBooker().getId());
+        bookerDto.setName(booking.getBooker().getName());
+        dto.setBooker(bookerDto);
+
         dto.setStatus(booking.getStatus().name());
         return dto;
     }
