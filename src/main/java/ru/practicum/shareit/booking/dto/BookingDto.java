@@ -15,8 +15,8 @@ public class BookingDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime end;
 
-    private ItemDto item;
-    private BookerDto booker;
+    private ItemDto itemId;
+    private BookerDto bookerId;
     private String status;
 
     @Data
