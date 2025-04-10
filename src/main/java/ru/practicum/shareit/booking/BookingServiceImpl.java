@@ -27,28 +27,31 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        Long itemId = bookingDto.getItemId() != null ? bookingDto.getItemId().getId() : null;
-        if (itemId == null) {
+
+        Long itemId;
+        if (bookingDto.getItem() != null && bookingDto.getItem().getId() != null) {
+            // Новый формат: item присутствует и содержит id
+            itemId = bookingDto.getItem().getId();
+        } else if (bookingDto.getItemId() != null) {
+            // Старый формат: используется itemId
+            itemId = bookingDto.getItemId();
+        } else {
             throw new IllegalArgumentException("Item ID must be provided");
         }
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException("Item not found"));
-        if (!item.isAvailable()) {
-            throw new IllegalArgumentException("Item is not available");
-        }
-        if (item.getOwner().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Owner cannot book their own item");
-        }
 
+        // Логика создания бронирования
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
         booking.setItem(item);
         booking.setBooker(booker);
-        booking.setStatus(BookingStatus.WAITING);
+        booking.setStatus(BookingStatus.WAITING); // Пример статуса
 
-        booking = bookingRepository.save(booking);
-        return toDto(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        return toDto(savedBooking);
     }
 
     @Override
@@ -160,12 +163,12 @@ public class BookingServiceImpl implements BookingService {
         BookingDto.ItemDto itemDto = new BookingDto.ItemDto();
         itemDto.setId(booking.getItem().getId());
         itemDto.setName(booking.getItem().getName());
-        dto.setItemId(itemDto);
+        dto.setItem(itemDto);
 
         BookingDto.BookerDto bookerDto = new BookingDto.BookerDto();
         bookerDto.setId(booking.getBooker().getId());
         bookerDto.setName(booking.getBooker().getName());
-        dto.setBookerId(bookerDto);
+        dto.setBooker(bookerDto);
 
         dto.setStatus(booking.getStatus().name());
         return dto;
