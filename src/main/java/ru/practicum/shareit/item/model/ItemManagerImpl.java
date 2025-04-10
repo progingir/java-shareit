@@ -57,12 +57,21 @@ public class ItemManagerImpl implements ItemManager {
     }
 
     @Override
-    public ItemResponse findItemById(Long id) {
+    public ItemResponse findItemById(Long id, Long userId) { // Добавляем userId
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Предмет с ID {} не найден", id);
                     return new ItemNotFoundException("Предмет с ID " + id + " не найден");
                 });
+        // Проверяем, имеет ли пользователь отношение к предмету
+        boolean isOwner = item.getOwner().getId().equals(userId);
+        boolean hasBooking = bookingRepository.findByBookerId(userId, Sort.by(Sort.Direction.DESC, "start"))
+                .stream()
+                .anyMatch(b -> b.getItem().getId().equals(id));
+        if (!isOwner && !hasBooking) {
+            log.warn("Пользователь с ID {} не имеет доступа к предмету с ID {}", userId, id);
+            throw new IllegalArgumentException("Пользователь не имеет доступа к предмету");
+        }
         List<CommentDto> comments = commentRepository.findByItemId(id).stream()
                 .map(this::toCommentDto)
                 .collect(Collectors.toList());

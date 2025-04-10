@@ -29,9 +29,9 @@ public class ItemApiController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemResponse> findById(@PathVariable Long id) {
-        log.info("Получение предмета с ID: {}", id);
-        return ResponseEntity.ok(itemManager.findItemById(id));
+    public ResponseEntity<ItemResponse> findById(@RequestHeader(USER_ID_HEADER) Long userId, @PathVariable Long id) {
+        log.info("Получение предмета с ID: {} пользователем с ID: {}", id, userId);
+        return ResponseEntity.ok(itemManager.findItemById(id, userId)); // Передаем userId
     }
 
     @PostMapping

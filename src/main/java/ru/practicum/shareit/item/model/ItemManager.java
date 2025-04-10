@@ -13,7 +13,7 @@ public interface ItemManager {
 
     ItemResponse addItem(NewItemRequest request, Long userId);
 
-    ItemResponse findItemById(Long id);
+    ItemResponse findItemById(Long id, Long userId);
 
     ItemResponse modifyItem(UpdateItemRequest request, Long userId, Long itemId);
 
