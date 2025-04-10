@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.ForbiddenAccessException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemRepository;
@@ -39,15 +40,23 @@ public class BookingServiceImpl implements BookingService {
 
         // Проверка пользователя
         User booker = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID")); // 400 вместо 404
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found")); // 404
 
         // Проверка предмета
         Long itemId = bookingDto.getItemId();
+        if (itemId == null) {
+            throw new IllegalArgumentException("Item ID must be provided"); // 400
+        }
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found")); // 500 вместо 404
+                .orElseThrow(() -> new ItemNotFoundException("Item with ID " + itemId + " not found")); // 404
 
         if (!item.isAvailable()) {
             throw new IllegalArgumentException("Item is not available"); // 400
+        }
+
+        // Проверка, что владелец не бронирует свой предмет
+        if (item.getOwner().getId().equals(userId)) {
+            throw new ForbiddenAccessException("Owner cannot book their own item"); // 403
         }
 
         // Создание бронирования
@@ -65,12 +74,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto updateBooking(Long bookingId, Long userId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found")); // 404 или 400?
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Only owner can approve/reject booking");
+            throw new ForbiddenAccessException("Only owner can approve/reject booking"); // 403
         }
         if (booking.getStatus() != BookingStatus.WAITING) {
-            throw new IllegalArgumentException("Booking status cannot be changed");
+            throw new IllegalArgumentException("Booking status cannot be changed"); // 400
         }
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -81,9 +90,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto getBooking(Long bookingId, Long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found")); // 404 или 400?
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Access denied");
+            throw new ForbiddenAccessException("Access denied"); // 403
         }
         return toDto(booking);
     }
@@ -91,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getUserBookings(Long userId, String state) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found")); // 404
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
@@ -125,7 +134,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getOwnerBookings(Long userId, String state) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found")); // 404
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
