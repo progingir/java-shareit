@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.ForbiddenAccessException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -18,7 +17,6 @@ import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserRepository;
-import ru.practicum.shareit.booking.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -108,52 +106,24 @@ public class ItemManagerImpl implements ItemManager {
         LocalDateTime now = LocalDateTime.now();
 
         return items.stream().map(item -> {
-            // Получаем бронирования для владельца с сортировкой по дате начала
+            // Add Sort parameter
             List<Booking> bookings = bookingRepository.findByItemOwnerId(userId, Sort.by(Sort.Direction.DESC, "start"));
-
-            // Находим последнее завершенное бронирование (lastBooking)
-            Booking lastBookingEntity = bookings.stream()
+            LocalDateTime lastBooking = bookings.stream()
                     .filter(b -> b.getItem().getId().equals(item.getId()) && b.getEnd().isBefore(now))
                     .max(Comparator.comparing(Booking::getEnd))
+                    .map(Booking::getEnd)
                     .orElse(null);
-            BookingDto lastBooking = lastBookingEntity != null ? toBookingDto(lastBookingEntity) : null;
-
-            // Находим следующее бронирование (nextBooking)
-            Booking nextBookingEntity = bookings.stream()
+            LocalDateTime nextBooking = bookings.stream()
                     .filter(b -> b.getItem().getId().equals(item.getId()) && b.getStart().isAfter(now))
                     .min(Comparator.comparing(Booking::getStart))
+                    .map(Booking::getStart)
                     .orElse(null);
-            BookingDto nextBooking = nextBookingEntity != null ? toBookingDto(nextBookingEntity) : null;
-
-            // Получаем комментарии
             List<CommentDto> comments = commentRepository.findByItemId(item.getId()).stream()
                     .map(this::toCommentDto)
                     .collect(Collectors.toList());
 
-            return transformer.toResponseWithBookingsAndComments(item, lastBooking, nextBooking, comments);
+            return transformer.toResponseWithBookingsAndComments(item, lastBooking, nextBooking, comments); // Assumes updated ItemTransformer
         }).collect(Collectors.toList());
-    }
-
-    private BookingDto toBookingDto(Booking booking) {
-        BookingDto dto = new BookingDto();
-        dto.setId(booking.getId());
-        dto.setStart(booking.getStart());
-        dto.setEnd(booking.getEnd());
-
-        BookingDto.ItemDto itemDto = new BookingDto.ItemDto();
-        itemDto.setId(booking.getItem().getId());
-        itemDto.setName(booking.getItem().getName());
-        dto.setItem(itemDto);
-
-        BookingDto.BookerDto bookerDto = new BookingDto.BookerDto();
-        bookerDto.setId(booking.getBooker().getId());
-        bookerDto.setName(booking.getBooker().getName());
-        dto.setBooker(bookerDto);
-
-        // Проверка на null и вызов name()
-        BookingStatus status = booking.getStatus();
-        dto.setStatus(status != null ? status.name() : null);
-        return dto;
     }
 
     @Override
