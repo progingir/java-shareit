@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exception.ForbiddenAccessException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -173,12 +174,16 @@ public class ItemManagerImpl implements ItemManager {
                 .orElseThrow(() -> new ItemNotFoundException("Предмет с ID " + itemId + " не найден"));
 
         LocalDateTime now = LocalDateTime.now();
-        // Проверяем, что пользователь бронировал предмет и бронирование завершено
-        boolean hasBooking = bookingRepository.findByBookerId(userId, Sort.by(Sort.Direction.DESC, "start")).stream()
-                .anyMatch(b -> b.getItem().getId().equals(itemId) && b.getEnd().isBefore(now));
-        if (!hasBooking) {
-            log.warn("Пользователь с ID {} не арендовал предмет с ID {} или бронирование не завершено", userId, itemId);
-            throw new IllegalArgumentException("Комментарий может оставить только пользователь, завершивший бронирование");
+        // Проверяем, есть ли завершенное бронирование
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        boolean hasValidBooking = bookingRepository.findByBookerId(userId, sort).stream()
+                .anyMatch(b -> b.getItem().getId().equals(itemId)
+                        && b.getStatus() == BookingStatus.APPROVED
+                        && b.getEnd().isBefore(now));
+
+        if (!hasValidBooking) {
+            log.warn("Пользователь с ID {} не может комментировать предмет с ID {}. Требуется завершенное бронирование.", userId, itemId);
+            throw new IllegalArgumentException("Комментарии можно добавлять только после завершения бронирования");
         }
 
         Comment comment = new Comment();
