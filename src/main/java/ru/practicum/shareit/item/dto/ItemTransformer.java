@@ -1,16 +1,16 @@
 package ru.practicum.shareit.item.dto;
 
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ItemTransformer {
     ItemResponse toResponse(Item item);
 
-    ItemResponse toResponse(Item item, List<CommentDto> comments); // Added for findItemById
+    ItemResponse toResponse(Item item, List<CommentDto> comments);
 
-    ItemWithBookingsResponse toResponseWithBookingsAndComments(Item item, LocalDateTime lastBooking, LocalDateTime nextBooking, List<CommentDto> comments); // Added for fetchUserItems
+    ItemWithBookingsResponse toResponseWithBookingsAndComments(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments);
 
     Item toItem(NewItemRequest request);
 
