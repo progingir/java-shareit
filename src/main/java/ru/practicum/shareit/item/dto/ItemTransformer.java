@@ -8,7 +8,7 @@ import java.util.List;
 public interface ItemTransformer {
     ItemResponse toResponse(Item item);
 
-    ItemResponse toResponse(Item item, List<CommentDto> comments, Long userId); // Добавляем userId
+    ItemResponse toResponse(Item item, List<CommentDto> comments, Long userId);
 
     ItemWithBookingsResponse toResponseWithBookingsAndComments(
             Item item,

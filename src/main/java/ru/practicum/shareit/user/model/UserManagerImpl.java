@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserManagerImpl implements UserManager {
-    private final UserRepository userRepository; // Заменяем UserStorage на UserRepository
+    private final UserRepository userRepository;
     private final UserTransformer transformer;
 
     @Override
@@ -34,7 +34,7 @@ public class UserManagerImpl implements UserManager {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new EmailDuplicateException("Пользователь с email " + user.getEmail() + " уже существует", 409);
         }
-        User savedUser = userRepository.save(user); // Сохраняем через JPA
+        User savedUser = userRepository.save(user);
         log.debug("Добавлен новый пользователь: {}", savedUser);
         return transformer.toResponse(savedUser);
     }
@@ -61,7 +61,7 @@ public class UserManagerImpl implements UserManager {
             throw new EmailDuplicateException("Пользователь с email " + newEmail + " уже существует", 409);
         }
         User updatedUser = transformer.applyUpdates(request, user);
-        updatedUser = userRepository.save(updatedUser); // Сохраняем изменения через JPA
+        updatedUser = userRepository.save(updatedUser);
         log.debug("Обновлен пользователь: {}", updatedUser);
         return transformer.toResponse(updatedUser);
     }

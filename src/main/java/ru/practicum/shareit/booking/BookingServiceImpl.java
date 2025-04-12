@@ -25,7 +25,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
-        // Валидация дат
         if (bookingDto.getStart() == null || bookingDto.getEnd() == null) {
             throw new IllegalArgumentException("Start and end dates must be provided"); // 400
         }
@@ -38,11 +37,9 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("Start date must be before end date"); // 400
         }
 
-        // Проверка пользователя
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found")); // 404
 
-        // Проверка предмета
         Long itemId = bookingDto.getItemId();
         if (itemId == null) {
             throw new IllegalArgumentException("Item ID must be provided"); // 400
@@ -54,12 +51,10 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("Item is not available"); // 400
         }
 
-        // Проверка, что владелец не бронирует свой предмет
         if (item.getOwner().getId().equals(userId)) {
             throw new ForbiddenAccessException("Owner cannot book their own item"); // 403
         }
 
-        // Создание бронирования
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
@@ -74,12 +69,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto updateBooking(Long bookingId, Long userId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found")); // 404 или 400?
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Only owner can approve/reject booking"); // 403
+            throw new ForbiddenAccessException("Only owner can approve/reject booking");
         }
         if (booking.getStatus() != BookingStatus.WAITING) {
-            throw new IllegalArgumentException("Booking status cannot be changed"); // 400
+            throw new IllegalArgumentException("Booking status cannot be changed");
         }
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -90,7 +85,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto getBooking(Long bookingId, Long userId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found")); // 404 или 400?
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
             throw new ForbiddenAccessException("Access denied"); // 403
         }
@@ -100,7 +95,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getUserBookings(Long userId, String state) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found")); // 404
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
@@ -125,7 +120,7 @@ public class BookingServiceImpl implements BookingService {
                         .stream().filter(b -> b.getStatus() == BookingStatus.REJECTED)
                         .collect(Collectors.toList());
                 break;
-            default: // ALL
+            default:
                 bookings = bookingRepository.findByBookerId(userId, sort);
         }
         return bookings.stream().map(this::toDto).collect(Collectors.toList());
@@ -134,7 +129,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getOwnerBookings(Long userId, String state) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found")); // 404
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
@@ -165,7 +160,7 @@ public class BookingServiceImpl implements BookingService {
                         .stream().filter(b -> b.getStatus() == BookingStatus.REJECTED)
                         .collect(Collectors.toList());
                 break;
-            default: // ALL
+            default:
                 bookings = bookingRepository.findByItemOwnerId(userId, sort);
         }
         return bookings.stream().map(this::toDto).collect(Collectors.toList());

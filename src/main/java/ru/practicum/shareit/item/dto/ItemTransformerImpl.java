@@ -27,7 +27,6 @@ public class ItemTransformerImpl implements ItemTransformer {
         BookingShortDto lastBooking = null;
         BookingShortDto nextBooking = null;
 
-        // Добавляем бронирования только для владельца
         if (userId != null && item.getOwner() != null && userId.equals(item.getOwner().getId())) {
             LocalDateTime now = LocalDateTime.now();
             Sort sort = Sort.by(Sort.Direction.DESC, "start");
