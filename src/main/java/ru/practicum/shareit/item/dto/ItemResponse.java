@@ -13,7 +13,7 @@ public class ItemResponse {
     private String name;
     private String description;
     private boolean available;
-    private BookingShortDto lastBooking; // Добавляем
-    private BookingShortDto nextBooking; // Добавляем
+    private BookingShortDto lastBooking;
+    private BookingShortDto nextBooking;
     private List<CommentDto> comments;
 }

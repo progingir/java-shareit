@@ -19,27 +19,33 @@ public class ItemTransformerImpl implements ItemTransformer {
 
     @Override
     public ItemResponse toResponse(Item item) {
-        return toResponse(item, List.of());
+        return toResponse(item, List.of(), null);
     }
 
     @Override
-    public ItemResponse toResponse(Item item, List<CommentDto> comments) {
-        LocalDateTime now = LocalDateTime.now();
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+    public ItemResponse toResponse(Item item, List<CommentDto> comments, Long userId) {
+        BookingShortDto lastBooking = null;
+        BookingShortDto nextBooking = null;
 
-        BookingShortDto lastBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
-                .stream()
-                .filter(b -> b.getItem().getId().equals(item.getId()) && b.getEnd().isBefore(now))
-                .max(Comparator.comparing(Booking::getEnd))
-                .map(this::toBookingShortDto)
-                .orElse(null);
+        // Добавляем бронирования только для владельца
+        if (userId != null && item.getOwner() != null && userId.equals(item.getOwner().getId())) {
+            LocalDateTime now = LocalDateTime.now();
+            Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
-        BookingShortDto nextBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
-                .stream()
-                .filter(b -> b.getItem().getId().equals(item.getId()) && b.getStart().isAfter(now))
-                .min(Comparator.comparing(Booking::getStart))
-                .map(this::toBookingShortDto)
-                .orElse(null);
+            lastBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
+                    .stream()
+                    .filter(b -> b.getItem().getId().equals(item.getId()) && b.getEnd().isBefore(now))
+                    .max(Comparator.comparing(Booking::getEnd))
+                    .map(this::toBookingShortDto)
+                    .orElse(null);
+
+            nextBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
+                    .stream()
+                    .filter(b -> b.getItem().getId().equals(item.getId()) && b.getStart().isAfter(now))
+                    .min(Comparator.comparing(Booking::getStart))
+                    .map(this::toBookingShortDto)
+                    .orElse(null);
+        }
 
         return new ItemResponse(
                 item.getId(),
@@ -55,8 +61,8 @@ public class ItemTransformerImpl implements ItemTransformer {
     @Override
     public ItemWithBookingsResponse toResponseWithBookingsAndComments(
             Item item,
-            BookingShortDto lastBooking, // Изменено с LocalDateTime
-            BookingShortDto nextBooking, // Изменено с LocalDateTime
+            BookingShortDto lastBooking,
+            BookingShortDto nextBooking,
             List<CommentDto> comments
     ) {
         ItemWithBookingsResponse response = new ItemWithBookingsResponse(

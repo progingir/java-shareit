@@ -8,9 +8,14 @@ import java.util.List;
 public interface ItemTransformer {
     ItemResponse toResponse(Item item);
 
-    ItemResponse toResponse(Item item, List<CommentDto> comments); // Added for findItemById
+    ItemResponse toResponse(Item item, List<CommentDto> comments, Long userId); // Добавляем userId
 
-    ItemWithBookingsResponse toResponseWithBookingsAndComments(Item item, BookingShortDto lastBooking, BookingShortDto nextBooking, List<CommentDto> comments); // Added for fetchUserItems
+    ItemWithBookingsResponse toResponseWithBookingsAndComments(
+            Item item,
+            BookingShortDto lastBooking,
+            BookingShortDto nextBooking,
+            List<CommentDto> comments
+    );
 
     Item toItem(NewItemRequest request);
 

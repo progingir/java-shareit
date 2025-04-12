@@ -37,7 +37,7 @@ public class ItemManagerImpl implements ItemManager {
     @Override
     public List<ItemResponse> fetchAllItems() {
         List<ItemResponse> items = itemRepository.findAll().stream()
-                .map(transformer::toResponse)
+                .map(item -> transformer.toResponse(item, List.of(), null)) // Передаём null для userId
                 .toList();
         log.debug("Получено {} предметов", items.size());
         return items;
@@ -54,7 +54,7 @@ public class ItemManagerImpl implements ItemManager {
         item.setOwner(owner);
         Item savedItem = itemRepository.save(item);
         log.debug("Добавлен новый предмет: {}", savedItem);
-        return transformer.toResponse(savedItem);
+        return transformer.toResponse(savedItem, List.of(), userId);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ItemManagerImpl implements ItemManager {
         List<CommentDto> comments = commentRepository.findByItemId(id).stream()
                 .map(this::toCommentDto)
                 .collect(Collectors.toList());
-        return transformer.toResponse(item, comments);
+        return transformer.toResponse(item, comments, userId); // Передаём userId
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ItemManagerImpl implements ItemManager {
         Item updatedItem = transformer.applyUpdates(request, item);
         updatedItem = itemRepository.save(updatedItem);
         log.debug("Обновлен предмет: {}", updatedItem);
-        return transformer.toResponse(updatedItem);
+        return transformer.toResponse(updatedItem, List.of(), userId);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class ItemManagerImpl implements ItemManager {
         }
 
         List<ItemResponse> items = itemRepository.search(query).stream()
-                .map(transformer::toResponse)
+                .map(item -> transformer.toResponse(item, List.of(), null))
                 .toList();
         log.debug("Найдено {} предметов по запросу: {}", items.size(), query);
         return items;
