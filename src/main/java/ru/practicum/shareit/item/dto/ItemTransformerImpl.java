@@ -1,21 +1,71 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ItemTransformerImpl implements ItemTransformer {
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemResponse toResponse(Item item) {
-        return new ItemResponse(item.getId(), item.getName(), item.getDescription(), item.isAvailable(), List.of());
+        return toResponse(item, List.of());
     }
 
+    @Override
     public ItemResponse toResponse(Item item, List<CommentDto> comments) {
-        return new ItemResponse(item.getId(), item.getName(), item.getDescription(), item.isAvailable(), comments);
+        LocalDateTime now = LocalDateTime.now();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+
+        BookingShortDto lastBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
+                .stream()
+                .filter(b -> b.getItem().getId().equals(item.getId()) && b.getEnd().isBefore(now))
+                .max(Comparator.comparing(Booking::getEnd))
+                .map(this::toBookingShortDto)
+                .orElse(null);
+
+        BookingShortDto nextBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
+                .stream()
+                .filter(b -> b.getItem().getId().equals(item.getId()) && b.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart))
+                .map(this::toBookingShortDto)
+                .orElse(null);
+
+        return new ItemResponse(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.isAvailable(),
+                lastBooking,
+                nextBooking,
+                comments
+        );
+    }
+
+    @Override
+    public ItemWithBookingsResponse toResponseWithBookingsAndComments(
+            Item item,
+            BookingShortDto lastBooking, // Изменено с LocalDateTime
+            BookingShortDto nextBooking, // Изменено с LocalDateTime
+            List<CommentDto> comments
+    ) {
+        ItemWithBookingsResponse response = new ItemWithBookingsResponse(
+                item.getId(), item.getName(), item.getDescription(), item.isAvailable()
+        );
+        response.setLastBooking(lastBooking);
+        response.setNextBooking(nextBooking);
+        response.setComments(comments);
+        return response;
     }
 
     @Override
@@ -35,22 +85,12 @@ public class ItemTransformerImpl implements ItemTransformer {
         return item;
     }
 
-    public ItemWithBookingsResponse toResponseWithBookings(Item item, LocalDateTime lastBooking, LocalDateTime nextBooking) {
-        ItemWithBookingsResponse response = new ItemWithBookingsResponse(
-                item.getId(), item.getName(), item.getDescription(), item.isAvailable()
-        );
-        response.setLastBooking(lastBooking);
-        response.setNextBooking(nextBooking);
-        return response;
-    }
-
-    public ItemWithBookingsResponse toResponseWithBookingsAndComments(Item item, LocalDateTime lastBooking, LocalDateTime nextBooking, List<CommentDto> comments) {
-        ItemWithBookingsResponse response = new ItemWithBookingsResponse(
-                item.getId(), item.getName(), item.getDescription(), item.isAvailable()
-        );
-        response.setLastBooking(lastBooking);
-        response.setNextBooking(nextBooking);
-        response.setComments(comments);
-        return response;
+    private BookingShortDto toBookingShortDto(Booking booking) {
+        BookingShortDto dto = new BookingShortDto();
+        dto.setId(booking.getId());
+        dto.setBookerId(booking.getBooker().getId());
+        dto.setStart(booking.getStart());
+        dto.setEnd(booking.getEnd());
+        return dto;
     }
 }

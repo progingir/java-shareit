@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.exception.ForbiddenAccessException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -57,13 +58,12 @@ public class ItemManagerImpl implements ItemManager {
     }
 
     @Override
-    public ItemResponse findItemById(Long id, Long userId) { // Добавляем userId
+    public ItemResponse findItemById(Long id, Long userId) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Предмет с ID {} не найден", id);
                     return new ItemNotFoundException("Предмет с ID " + id + " не найден");
                 });
-        // Проверяем, имеет ли пользователь отношение к предмету
         boolean isOwner = item.getOwner().getId().equals(userId);
         boolean hasBooking = bookingRepository.findByBookerId(userId, Sort.by(Sort.Direction.DESC, "start"))
                 .stream()
@@ -104,25 +104,25 @@ public class ItemManagerImpl implements ItemManager {
                 });
         List<Item> items = itemRepository.findByOwnerId(userId);
         LocalDateTime now = LocalDateTime.now();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
         return items.stream().map(item -> {
-            // Add Sort parameter
-            List<Booking> bookings = bookingRepository.findByItemOwnerId(userId, Sort.by(Sort.Direction.DESC, "start"));
-            LocalDateTime lastBooking = bookings.stream()
+            List<Booking> bookings = bookingRepository.findByItemOwnerId(userId, sort);
+            BookingShortDto lastBooking = bookings.stream()
                     .filter(b -> b.getItem().getId().equals(item.getId()) && b.getEnd().isBefore(now))
                     .max(Comparator.comparing(Booking::getEnd))
-                    .map(Booking::getEnd)
+                    .map(this::toBookingShortDto)
                     .orElse(null);
-            LocalDateTime nextBooking = bookings.stream()
+            BookingShortDto nextBooking = bookings.stream()
                     .filter(b -> b.getItem().getId().equals(item.getId()) && b.getStart().isAfter(now))
                     .min(Comparator.comparing(Booking::getStart))
-                    .map(Booking::getStart)
+                    .map(this::toBookingShortDto)
                     .orElse(null);
             List<CommentDto> comments = commentRepository.findByItemId(item.getId()).stream()
                     .map(this::toCommentDto)
                     .collect(Collectors.toList());
 
-            return transformer.toResponseWithBookingsAndComments(item, lastBooking, nextBooking, comments); // Assumes updated ItemTransformer
+            return transformer.toResponseWithBookingsAndComments(item, lastBooking, nextBooking, comments);
         }).collect(Collectors.toList());
     }
 
@@ -173,7 +173,6 @@ public class ItemManagerImpl implements ItemManager {
                 .orElseThrow(() -> new ItemNotFoundException("Предмет с ID " + itemId + " не найден"));
 
         LocalDateTime now = LocalDateTime.now();
-        // Проверяем, что пользователь бронировал предмет и бронирование завершено
         boolean hasBooking = bookingRepository.findByBookerId(userId, Sort.by(Sort.Direction.DESC, "start")).stream()
                 .anyMatch(b -> b.getItem().getId().equals(itemId) && b.getEnd().isBefore(now));
         if (!hasBooking) {
@@ -200,6 +199,15 @@ public class ItemManagerImpl implements ItemManager {
         dto.setAuthorId(comment.getAuthor().getId());
         dto.setAuthorName(comment.getAuthor().getName());
         dto.setCreated(comment.getCreated());
+        return dto;
+    }
+
+    private BookingShortDto toBookingShortDto(Booking booking) {
+        BookingShortDto dto = new BookingShortDto();
+        dto.setId(booking.getId());
+        dto.setBookerId(booking.getBooker().getId());
+        dto.setStart(booking.getStart());
+        dto.setEnd(booking.getEnd());
         return dto;
     }
 }
