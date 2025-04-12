@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
