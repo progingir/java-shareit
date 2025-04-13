@@ -187,7 +187,7 @@ public class ItemManagerImpl implements ItemManager {
         comment.setCreated(now);
 
         Comment savedComment = commentRepository.save(comment);
-        log.debug("Добавлен комментарий к предмету с ID {}: {}", itemId, savedComment);
+        log.info("Добавлен комментарий к предмету с ID {}: {}", itemId, savedComment);
         return toCommentDto(savedComment);
     }
 
