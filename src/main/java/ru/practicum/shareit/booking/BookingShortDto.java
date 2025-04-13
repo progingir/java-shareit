@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -6,20 +6,13 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class BookingDto {
+public class BookingShortDto {
     private Long id;
+    private Long bookerId;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime start;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime end;
-
-    private ItemDto item;
-    private Long itemId;
-
-    private BookerDto booker;
-    private Long bookerId;
-
-    private String status;
 }

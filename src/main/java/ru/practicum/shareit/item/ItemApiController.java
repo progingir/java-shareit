@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemResponse;
+import ru.practicum.shareit.item.dto.ItemWithBookingsResponse;
 import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 import ru.practicum.shareit.item.model.ItemManager;
@@ -21,15 +23,15 @@ public class ItemApiController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @GetMapping
-    public ResponseEntity<List<ItemResponse>> fetchUserItems(@RequestHeader(USER_ID_HEADER) Long userId) {
+    public ResponseEntity<List<ItemWithBookingsResponse>> fetchUserItems(@RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Получение списка предметов пользователя с ID: {}", userId);
         return ResponseEntity.ok(itemManager.fetchUserItems(userId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemResponse> findById(@PathVariable Long id) {
-        log.info("Получение предмета с ID: {}", id);
-        return ResponseEntity.ok(itemManager.findItemById(id));
+    public ResponseEntity<ItemResponse> findById(@RequestHeader(USER_ID_HEADER) Long userId, @PathVariable Long id) {
+        log.info("Получение предмета с ID: {} пользователем с ID: {}", id, userId);
+        return ResponseEntity.ok(itemManager.findItemById(id, userId));
     }
 
     @PostMapping
@@ -66,5 +68,13 @@ public class ItemApiController {
         log.info("Удаление предмета с ID: {} пользователем с ID: {}", id, userId);
         itemManager.removeItem(id, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public ResponseEntity<CommentDto> addComment(@RequestHeader(USER_ID_HEADER) Long userId,
+                                                 @PathVariable Long itemId,
+                                                 @RequestBody @Valid CommentDto commentDto) {
+        log.info("Добавление комментария к предмету с ID: {} пользователем с ID: {}", itemId, userId);
+        return ResponseEntity.ok(itemManager.addComment(commentDto, userId, itemId));
     }
 }
