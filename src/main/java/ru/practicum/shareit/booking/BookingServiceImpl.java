@@ -111,9 +111,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByBookerIdAndStartAfter(userId, now, sort);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByBookerId(userId, sort)
-                        .stream().filter(b -> b.getStatus() == BookingStatus.WAITING)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.WAITING, sort);
                 break;
             case "REJECTED":
                 bookings = bookingRepository.findByBookerId(userId, sort)
@@ -151,9 +149,7 @@ public class BookingServiceImpl implements BookingService {
                         .collect(Collectors.toList());
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByItemOwnerId(userId, sort)
-                        .stream().filter(b -> b.getStatus() == BookingStatus.WAITING)
-                        .collect(Collectors.toList());
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.WAITING, sort);
                 break;
             case "REJECTED":
                 bookings = bookingRepository.findByItemOwnerId(userId, sort)
