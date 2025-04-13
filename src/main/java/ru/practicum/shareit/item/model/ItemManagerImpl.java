@@ -177,7 +177,7 @@ public class ItemManagerImpl implements ItemManager {
                 .anyMatch(b -> b.getItem().getId().equals(itemId) && b.getEnd().isBefore(now));
         if (!hasBooking) {
             log.warn("Пользователь с ID {} не арендовал предмет с ID {} или бронирование не завершено", userId, itemId);
-            throw new ForbiddenAccessException("Комментарий может оставить только пользователь, завершивший бронирование");
+            throw new RuntimeException("Комментарий может оставить только пользователь, завершивший бронирование");
         }
 
         Comment comment = new Comment();
