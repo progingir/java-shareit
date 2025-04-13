@@ -3,9 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookerDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.ItemDto;
 import ru.practicum.shareit.exception.ForbiddenAccessException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -174,12 +172,12 @@ public class BookingServiceImpl implements BookingService {
         dto.setStart(booking.getStart());
         dto.setEnd(booking.getEnd());
 
-        ItemDto itemDto = new ItemDto();
+        BookingDto.ItemDto itemDto = new BookingDto.ItemDto();
         itemDto.setId(booking.getItem().getId());
         itemDto.setName(booking.getItem().getName());
         dto.setItem(itemDto);
 
-        BookerDto bookerDto = new BookerDto();
+        BookingDto.BookerDto bookerDto = new BookingDto.BookerDto();
         bookerDto.setId(booking.getBooker().getId());
         bookerDto.setName(booking.getBooker().getName());
         dto.setBooker(bookerDto);
