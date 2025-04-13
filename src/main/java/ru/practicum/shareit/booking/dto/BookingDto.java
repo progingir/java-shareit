@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -21,16 +22,4 @@ public class BookingDto {
     private Long bookerId;
 
     private String status;
-
-    @Data
-    public static class ItemDto {
-        private Long id;
-        private String name;
-    }
-
-    @Data
-    public static class BookerDto {
-        private Long id;
-        private String name;
-    }
 }
