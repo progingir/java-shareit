@@ -31,19 +31,8 @@ public class ItemTransformerImpl implements ItemTransformer {
             LocalDateTime now = LocalDateTime.now();
             Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
-            lastBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
-                    .stream()
-                    .filter(b -> b.getItem().getId().equals(item.getId()) && b.getEnd().isBefore(now))
-                    .max(Comparator.comparing(Booking::getEnd))
-                    .map(this::toBookingShortDto)
-                    .orElse(null);
-
-            nextBooking = bookingRepository.findByItemOwnerId(item.getOwner().getId(), sort)
-                    .stream()
-                    .filter(b -> b.getItem().getId().equals(item.getId()) && b.getStart().isAfter(now))
-                    .min(Comparator.comparing(Booking::getStart))
-                    .map(this::toBookingShortDto)
-                    .orElse(null);
+            lastBooking = findLastBooking(item.getId(), item.getOwner().getId(), now, sort);
+            nextBooking = findNextBooking(item.getId(), item.getOwner().getId(), now, sort);
         }
 
         return new ItemResponse(
@@ -88,6 +77,24 @@ public class ItemTransformerImpl implements ItemTransformer {
         if (updates.getDescription() != null) item.setDescription(updates.getDescription());
         if (updates.getAvailable() != null) item.setAvailable(updates.getAvailable());
         return item;
+    }
+
+    private BookingShortDto findLastBooking(Long itemId, Long ownerId, LocalDateTime now, Sort sort) {
+        return bookingRepository.findByItemOwnerId(ownerId, sort)
+                .stream()
+                .filter(b -> b.getItem().getId().equals(itemId) && b.getEnd().isBefore(now))
+                .max(Comparator.comparing(Booking::getEnd))
+                .map(this::toBookingShortDto)
+                .orElse(null);
+    }
+
+    private BookingShortDto findNextBooking(Long itemId, Long ownerId, LocalDateTime now, Sort sort) {
+        return bookingRepository.findByItemOwnerId(ownerId, sort)
+                .stream()
+                .filter(b -> b.getItem().getId().equals(itemId) && b.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart))
+                .map(this::toBookingShortDto)
+                .orElse(null);
     }
 
     private BookingShortDto toBookingShortDto(Booking booking) {
