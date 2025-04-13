@@ -21,16 +21,4 @@ public class BookingDto {
     private Long bookerId;
 
     private String status;
-
-    @Data
-    public static class ItemDto {
-        private Long id;
-        private String name;
-    }
-
-    @Data
-    public static class BookerDto {
-        private Long id;
-        private String name;
-    }
 }
