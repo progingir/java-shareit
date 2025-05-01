@@ -5,3 +5,4 @@ package ru.practicum.shareit.request;
  */
 public class ItemRequest {
 }
+//буду реализовывать этот класс
