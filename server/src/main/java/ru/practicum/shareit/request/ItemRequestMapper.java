@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,10 +14,16 @@ public class ItemRequestMapper {
     public ItemRequestDto toDto(ItemRequest request, List<Item> items) {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(request.getId());
-        String description = request.getDescription() != null ? request.getDescription() : "";
-        dto.setDescription(description);
-        dto.setName(description); // Устанавливаем name на основе description
-        dto.setRequestorId(request.getRequestor().getId());
+        dto.setDescription(request.getDescription() != null ? request.getDescription() : "");
+
+        // Заполняем requester
+        ItemRequestDto.Requester requester = new ItemRequestDto.Requester();
+        User requestor = request.getRequestor();
+        requester.setId(requestor.getId());
+        requester.setEmail(requestor.getEmail() != null ? requestor.getEmail() : "");
+        requester.setName(requestor.getName() != null ? requestor.getName() : "");
+        dto.setRequester(requester);
+
         dto.setCreated(request.getCreated());
         dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
         return dto;
@@ -24,8 +31,7 @@ public class ItemRequestMapper {
 
     public ItemRequest toEntity(ItemRequestDto dto) {
         ItemRequest request = new ItemRequest();
-        String description = dto.getDescription() != null ? dto.getDescription() : dto.getName();
-        request.setDescription(description != null ? description : "");
+        request.setDescription(dto.getDescription() != null ? dto.getDescription() : "");
         return request;
     }
 
@@ -33,7 +39,20 @@ public class ItemRequestMapper {
         ItemRequestDto.ItemDto itemDto = new ItemRequestDto.ItemDto();
         itemDto.setId(item.getId());
         itemDto.setName(item.getName());
-        itemDto.setOwnerId(item.getOwner().getId());
+        itemDto.setDescription(item.getDescription() != null ? item.getDescription() : "");
+        itemDto.setAvailable(item.getAvailable());
+
+        // Заполняем owner
+        ItemRequestDto.Owner owner = new ItemRequestDto.Owner();
+        User ownerUser = item.getOwner();
+        owner.setId(ownerUser.getId());
+        owner.setEmail(ownerUser.getEmail() != null ? ownerUser.getEmail() : "");
+        owner.setName(ownerUser.getName() != null ? ownerUser.getName() : "");
+        itemDto.setOwner(owner);
+
+        // Устанавливаем requestId
+        itemDto.setRequestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null);
+
         return itemDto;
     }
 }
