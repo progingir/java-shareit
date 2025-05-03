@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.model.User;
@@ -37,7 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         request.setCreated(LocalDateTime.now());
         request = requestRepository.save(request);
         log.debug("Создан запрос с ID {}", request.getId());
-        return mapper.toDto(request, List.of());
+        return mapper.toDto(request, itemRepository.findByItemRequest_Id(request.getId()));
     }
 
     @Override
@@ -85,9 +86,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 });
         if (request.getDescription() == null) {
             log.warn("Описание запроса с ID {} равно null", requestId);
-            request.setDescription(""); // Устанавливаем пустое описание, чтобы избежать null
+            request.setDescription("");
         }
-        ItemRequestDto dto = mapper.toDto(request, itemRepository.findByItemRequest_Id(requestId));
+        List<Item> items = itemRepository.findByItemRequest_Id(requestId);
+        ItemRequestDto dto = mapper.toDto(request, items != null ? items : List.of());
         log.debug("Возвращён DTO для запроса с ID {}: {}", requestId, dto);
         return dto;
     }
