@@ -14,18 +14,31 @@ public class ItemRequestMapper {
     public ItemRequestDto toDto(ItemRequest request, List<Item> items) {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(request.getId());
-        dto.setDescription(request.getDescription() != null ? request.getDescription() : "");
+        dto.setDescription(request.getDescription());
 
         // Заполняем requester
         ItemRequestDto.Requester requester = new ItemRequestDto.Requester();
         User requestor = request.getRequestor();
         requester.setId(requestor.getId());
-        requester.setEmail(requestor.getEmail() != null ? requestor.getEmail() : "");
-        requester.setName(requestor.getName() != null ? requestor.getName() : "");
+        requester.setEmail(requestor.getEmail());
+        requester.setName(requestor.getName());
         dto.setRequester(requester);
 
         dto.setCreated(request.getCreated());
-        dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
+
+        // Преобразуем items
+        dto.setItems(items.stream()
+                .map(item -> {
+                    ItemRequestDto.ItemDto itemDto = new ItemRequestDto.ItemDto();
+                    itemDto.setId(item.getId());
+                    itemDto.setName(item.getName());
+                    itemDto.setDescription(item.getDescription());
+                    itemDto.setAvailable(item.isAvailable());
+                    itemDto.setRequestId(request.getId());
+                    return itemDto;
+                })
+                .collect(Collectors.toList()));
+
         return dto;
     }
 
