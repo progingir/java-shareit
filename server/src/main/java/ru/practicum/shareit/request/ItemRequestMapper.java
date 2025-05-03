@@ -13,9 +13,13 @@ public class ItemRequestMapper {
     public ItemRequestDto toDto(ItemRequest request, List<Item> items) {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(request.getId());
-        dto.setDescription(request.getDescription());
-        dto.setName(request.getDescription());
+        String description = request.getDescription() != null ? request.getDescription() : "";
+        dto.setDescription(description);
         dto.setRequestorId(request.getRequestor().getId());
+        ItemRequestDto.Requestor requestor = new ItemRequestDto.Requestor();
+        requestor.setId(request.getRequestor().getId());
+        requestor.setName(request.getRequestor().getName());
+        dto.setRequestor(requestor);
         dto.setCreated(request.getCreated());
         dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
         return dto;
@@ -23,7 +27,7 @@ public class ItemRequestMapper {
 
     public ItemRequest toEntity(ItemRequestDto dto) {
         ItemRequest request = new ItemRequest();
-        request.setDescription(dto.getDescription());
+        request.setDescription(dto.getDescription() != null ? dto.getDescription() : "");
         return request;
     }
 
