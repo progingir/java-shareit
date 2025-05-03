@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -14,9 +15,10 @@ public class ItemRequestDto {
     @NotBlank(message = "Описание запроса не может быть пустым")
     private String description;
 
-    private Long requestorId;
+    @JsonProperty("name")
+    private String name;
 
-    private Requestor requestor; // Добавляем объект requestor
+    private Long requestorId;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime created;
@@ -28,11 +30,5 @@ public class ItemRequestDto {
         private Long id;
         private String name;
         private Long ownerId;
-    }
-
-    @Data
-    public static class Requestor {
-        private Long id;
-        private String name;
     }
 }

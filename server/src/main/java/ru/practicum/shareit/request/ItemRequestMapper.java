@@ -15,11 +15,8 @@ public class ItemRequestMapper {
         dto.setId(request.getId());
         String description = request.getDescription() != null ? request.getDescription() : "";
         dto.setDescription(description);
+        dto.setName(description); // Устанавливаем name на основе description
         dto.setRequestorId(request.getRequestor().getId());
-        ItemRequestDto.Requestor requestor = new ItemRequestDto.Requestor();
-        requestor.setId(request.getRequestor().getId());
-        requestor.setName(request.getRequestor().getName());
-        dto.setRequestor(requestor);
         dto.setCreated(request.getCreated());
         dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
         return dto;
@@ -27,7 +24,8 @@ public class ItemRequestMapper {
 
     public ItemRequest toEntity(ItemRequestDto dto) {
         ItemRequest request = new ItemRequest();
-        request.setDescription(dto.getDescription() != null ? dto.getDescription() : "");
+        String description = dto.getDescription() != null ? dto.getDescription() : dto.getName();
+        request.setDescription(description != null ? description : "");
         return request;
     }
 
