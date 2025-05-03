@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -15,7 +14,6 @@ public class ItemRequestDto {
     @NotBlank(message = "Описание запроса не может быть пустым")
     private String description;
 
-    @JsonProperty("requester")
     private Requester requester;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
