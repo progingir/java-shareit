@@ -40,7 +40,7 @@ public class ItemRequestMapper {
         itemDto.setId(item.getId());
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription() != null ? item.getDescription() : "");
-        itemDto.setAvailable(item.getAvailable());
+        itemDto.setAvailable(item.isAvailable());
 
         // Заполняем owner
         ItemRequestDto.Owner owner = new ItemRequestDto.Owner();
