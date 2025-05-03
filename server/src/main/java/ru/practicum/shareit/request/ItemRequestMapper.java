@@ -14,6 +14,7 @@ public class ItemRequestMapper {
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(request.getId());
         dto.setDescription(request.getDescription());
+        dto.setName(request.getDescription());
         dto.setRequestorId(request.getRequestor().getId());
         dto.setCreated(request.getCreated());
         dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
