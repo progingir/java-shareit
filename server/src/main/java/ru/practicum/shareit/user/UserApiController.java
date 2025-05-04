@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +25,7 @@ public class UserApiController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> addUser(@RequestBody @Valid NewUserRequest request) {
+    public ResponseEntity<UserResponse> addUser(@RequestBody NewUserRequest request) {
         log.info("Добавление нового пользователя");
         return ResponseEntity.ok(userManager.addUser(request));
     }
@@ -38,7 +37,7 @@ public class UserApiController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@RequestBody @Valid UpdateUserRequest request,
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserRequest request,
                                                    @PathVariable Long id) {
         log.info("Обновление пользователя с ID: {}", id);
         return ResponseEntity.ok(userManager.modifyUser(request, id));
