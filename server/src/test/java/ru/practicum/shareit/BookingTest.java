@@ -1,6 +1,5 @@
 package ru.practicum.shareit;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -9,45 +8,50 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class BookingTest {
 
-    private Booking booking;
-
-    @BeforeEach
-    void setUp() {
-        booking = new Booking();
+    @Test
+    void testBooking() {
+        Booking booking = new Booking();
         booking.setId(1L);
-        booking.setStart(LocalDateTime.now().plusDays(1));
-        booking.setEnd(LocalDateTime.now().plusDays(2));
-        booking.setItem(new Item());
-        booking.setBooker(new User());
-        booking.setStatus(BookingStatus.WAITING);
-    }
-
-    @Test
-    void gettersAndSetters_workCorrectly() {
-        assertThat(booking.getId()).isEqualTo(1L);
-        assertThat(booking.getStatus()).isEqualTo(BookingStatus.WAITING);
-
-        booking.setId(2L);
+        Item item = new Item();
+        item.setId(1L);
+        booking.setItem(item);
+        User booker = new User();
+        booker.setId(1L);
+        booking.setBooker(booker);
+        LocalDateTime start = LocalDateTime.now();
+        booking.setStart(start);
+        LocalDateTime end = start.plusDays(1);
+        booking.setEnd(end);
         booking.setStatus(BookingStatus.APPROVED);
-        assertThat(booking.getId()).isEqualTo(2L);
-        assertThat(booking.getStatus()).isEqualTo(BookingStatus.APPROVED);
+
+        assertEquals(1L, booking.getId());
+        assertEquals(item, booking.getItem());
+        assertEquals(booker, booking.getBooker());
+        assertEquals(start, booking.getStart());
+        assertEquals(end, booking.getEnd());
+        assertEquals(BookingStatus.APPROVED, booking.getStatus());
     }
 
     @Test
-    void equalsAndHashCode_sameObjectsAreEqual() {
-        Booking other = new Booking();
-        other.setId(1L);
-        other.setStart(booking.getStart());
-        other.setEnd(booking.getEnd());
-        other.setItem(new Item());
-        other.setBooker(new User());
-        other.setStatus(BookingStatus.WAITING);
+    void testBookingWithNulls() {
+        Booking booking = new Booking();
+        assertNull(booking.getId());
+        assertNull(booking.getItem());
+        assertNull(booking.getBooker());
+        assertNull(booking.getStart());
+        assertNull(booking.getEnd());
+        assertNull(booking.getStatus());
+    }
 
-        assertThat(booking).isEqualTo(other);
-        assertThat(booking.hashCode()).isEqualTo(other.hashCode());
+    @Test
+    void testBookingStatusEnum() {
+        assertEquals("WAITING", BookingStatus.WAITING.name());
+        assertEquals("APPROVED", BookingStatus.APPROVED.name());
+        assertEquals("REJECTED", BookingStatus.REJECTED.name());
     }
 }
