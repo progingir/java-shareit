@@ -16,7 +16,6 @@ public class ItemRequestMapper {
         dto.setId(request.getId());
         dto.setDescription(request.getDescription() != null ? request.getDescription() : "");
 
-        // Заполняем requester
         ItemRequestDto.Requester requester = new ItemRequestDto.Requester();
         User requestor = request.getRequestor();
         if (requestor != null) {
@@ -24,14 +23,13 @@ public class ItemRequestMapper {
             requester.setEmail(requestor.getEmail() != null ? requestor.getEmail() : "");
             requester.setName(requestor.getName() != null ? requestor.getName() : "");
         } else {
-            requester.setName(""); // Или выбросить исключение, если requester обязателен
+            requester.setName("");
             requester.setEmail("");
         }
         dto.setRequester(requester);
 
         dto.setCreated(request.getCreated());
 
-        // Преобразуем items
         dto.setItems(items != null ? items.stream()
                 .map(item -> {
                     ItemRequestDto.ItemDto itemDto = new ItemRequestDto.ItemDto();
@@ -60,7 +58,6 @@ public class ItemRequestMapper {
         itemDto.setDescription(item.getDescription() != null ? item.getDescription() : "");
         itemDto.setAvailable(item.isAvailable());
 
-        // Заполняем owner
         ItemRequestDto.Owner owner = new ItemRequestDto.Owner();
         User ownerUser = item.getOwner();
         if (ownerUser != null) {
@@ -73,7 +70,6 @@ public class ItemRequestMapper {
         }
         itemDto.setOwner(owner);
 
-        // Устанавливаем requestId
         itemDto.setRequestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null);
 
         return itemDto;

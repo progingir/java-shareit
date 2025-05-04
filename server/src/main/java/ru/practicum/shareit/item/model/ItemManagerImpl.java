@@ -37,7 +37,7 @@ public class ItemManagerImpl implements ItemManager {
     @Override
     public List<ItemResponse> fetchAllItems() {
         List<ItemResponse> items = itemRepository.findAll().stream()
-                .map(item -> transformer.toResponse(item, List.of(), null)) // Передаём null для userId
+                .map(item -> transformer.toResponse(item, List.of(), null))
                 .toList();
         log.debug("Получено {} предметов", items.size());
         return items;
@@ -75,7 +75,7 @@ public class ItemManagerImpl implements ItemManager {
         List<CommentDto> comments = commentRepository.findByItemId(id).stream()
                 .map(this::toCommentDto)
                 .collect(Collectors.toList());
-        return transformer.toResponse(item, comments, userId); // Передаём userId
+        return transformer.toResponse(item, comments, userId);
     }
 
     @Override

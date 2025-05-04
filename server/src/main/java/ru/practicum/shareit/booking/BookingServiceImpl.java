@@ -22,7 +22,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final BookingMapper bookingMapper; // Добавляем маппер
+    private final BookingMapper bookingMapper;
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
@@ -64,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.WAITING);
 
         Booking savedBooking = bookingRepository.save(booking);
-        return bookingMapper.toDto(savedBooking); // Используем маппер
+        return bookingMapper.toDto(savedBooking);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         booking = bookingRepository.save(booking);
-        return bookingMapper.toDto(booking); // Используем маппер
+        return bookingMapper.toDto(booking);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
             throw new ForbiddenAccessException("Access denied");
         }
-        return bookingMapper.toDto(booking); // Используем маппер
+        return bookingMapper.toDto(booking);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class BookingServiceImpl implements BookingService {
             default:
                 bookings = bookingRepository.findByBookerId(userId, sort);
         }
-        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList()); // Используем маппер
+        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -150,6 +150,6 @@ public class BookingServiceImpl implements BookingService {
             default:
                 bookings = bookingRepository.findByItemOwnerId(userId, sort);
         }
-        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList()); // Используем маппер
+        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList());
     }
 }
