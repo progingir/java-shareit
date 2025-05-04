@@ -2,7 +2,10 @@ package ru.practicum.shareit.request;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.OwnerDto;
+import ru.practicum.shareit.request.dto.RequesterDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -16,7 +19,7 @@ public class ItemRequestMapper {
         dto.setId(request.getId());
         dto.setDescription(request.getDescription() != null ? request.getDescription() : "");
 
-        ItemRequestDto.Requester requester = new ItemRequestDto.Requester();
+        RequesterDto requester = new RequesterDto();
         User requestor = request.getRequestor();
         if (requestor != null) {
             requester.setId(requestor.getId());
@@ -31,15 +34,7 @@ public class ItemRequestMapper {
         dto.setCreated(request.getCreated());
 
         dto.setItems(items != null ? items.stream()
-                .map(item -> {
-                    ItemRequestDto.ItemDto itemDto = new ItemRequestDto.ItemDto();
-                    itemDto.setId(item.getId());
-                    itemDto.setName(item.getName() != null ? item.getName() : "");
-                    itemDto.setDescription(item.getDescription() != null ? item.getDescription() : "");
-                    itemDto.setAvailable(item.isAvailable());
-                    itemDto.setRequestId(request.getId());
-                    return itemDto;
-                })
+                .map(this::toItemDto)
                 .collect(Collectors.toList()) : List.of());
 
         return dto;
@@ -51,14 +46,14 @@ public class ItemRequestMapper {
         return request;
     }
 
-    private ItemRequestDto.ItemDto toItemDto(Item item) {
-        ItemRequestDto.ItemDto itemDto = new ItemRequestDto.ItemDto();
+    private ItemDto toItemDto(Item item) {
+        ItemDto itemDto = new ItemDto();
         itemDto.setId(item.getId());
         itemDto.setName(item.getName() != null ? item.getName() : "");
         itemDto.setDescription(item.getDescription() != null ? item.getDescription() : "");
         itemDto.setAvailable(item.isAvailable());
 
-        ItemRequestDto.Owner owner = new ItemRequestDto.Owner();
+        OwnerDto owner = new OwnerDto();
         User ownerUser = item.getOwner();
         if (ownerUser != null) {
             owner.setId(ownerUser.getId());
