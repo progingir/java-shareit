@@ -7,6 +7,8 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingShortDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemTransformerImpl implements ItemTransformer {
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository requestRepository;
 
     @Override
     public ItemResponse toResponse(Item item) {
@@ -68,6 +71,11 @@ public class ItemTransformerImpl implements ItemTransformer {
         item.setName(request.getName());
         item.setDescription(request.getDescription());
         item.setAvailable(request.getAvailable() != null && request.getAvailable());
+        if (request.getRequestId() != null) {
+            ItemRequest itemRequest = requestRepository.findById(request.getRequestId())
+                    .orElseThrow(() -> new IllegalArgumentException("Запрос с ID " + request.getRequestId() + " не найден"));
+            item.setItemRequest(itemRequest);
+        }
         return item;
     }
 
