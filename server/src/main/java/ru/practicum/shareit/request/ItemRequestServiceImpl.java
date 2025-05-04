@@ -38,7 +38,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         request.setCreated(LocalDateTime.now());
         request = requestRepository.save(request);
         log.debug("Создан запрос с ID {}", request.getId());
-        return mapper.toDto(request, itemRepository.findByItemRequest_Id(request.getId()));
+
+        // Получаем связанные items для этого запроса (может быть пустым, если их нет)
+        List<Item> items = itemRepository.findByItemRequest_Id(request.getId());
+        return mapper.toDto(request, items);
     }
 
     @Override
