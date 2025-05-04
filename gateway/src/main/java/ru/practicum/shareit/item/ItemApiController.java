@@ -23,12 +23,14 @@ public class ItemApiController {
     public ResponseEntity<Object> getItemsById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        //log.info("Request to get all items of the user with ID {} received.", userId);
         return itemClient.getItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @PathVariable long itemId) {
+        //log.info("Request to get item with ID {} received.", itemId);
         return itemClient.getItemById(userId, itemId);
     }
 
@@ -37,12 +39,14 @@ public class ItemApiController {
                                                    @RequestParam(name = "text") String text,
                                                    @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                    @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        //log.info("Request to get item containing text: {} received.", text);
         return itemClient.searchItemByText(userId, text, from, size);
     }
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestBody @Valid NewItemRequest itemDto) {
+        //log.info("Request to create new item received: {}", itemDto);
         return itemClient.createItem(userId, itemDto);
     }
 
@@ -50,6 +54,7 @@ public class ItemApiController {
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @RequestBody @Valid UpdateItemRequest itemDto,
                                          @PathVariable long itemId) {
+        //log.info("Request to update item received: {}", itemDto);
         return itemClient.updateItem(userId, itemDto, itemId);
     }
 
@@ -57,6 +62,7 @@ public class ItemApiController {
     public ResponseEntity<Object> comment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @RequestBody @Valid CommentDto commentDto,
                                           @PathVariable long itemId) {
+        //log.info("Request to comment item received: {}", commentDto);
         return itemClient.comment(userId, commentDto, itemId);
     }
 }

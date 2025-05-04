@@ -14,34 +14,10 @@ public class ItemRequestDto {
     @NotBlank(message = "Описание запроса не может быть пустым")
     private String description;
 
-    private Requester requester;
+    private RequesterDto requester;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
     private LocalDateTime created;
 
     private List<ItemDto> items;
-
-    @Data
-    public static class ItemDto {
-        private Long id;
-        private String name;
-        private String description;
-        private Boolean available;
-        private Owner owner;
-        private Long requestId;
-    }
-
-    @Data
-    public static class Requester {
-        private Long id;
-        private String email;
-        private String name;
-    }
-
-    @Data
-    public static class Owner {
-        private Long id;
-        private String email;
-        private String name;
-    }
 }
