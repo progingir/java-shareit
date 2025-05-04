@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: shareit
+      POSTGRES_USER: progingir
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - shareit-network
+
+  shareit-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: shareit-server
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shareit
+      SPRING_DATASOURCE_USERNAME: progingir
+      SPRING_DATASOURCE_PASSWORD: 12345
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_OPEN_IN_VIEW: false
+    depends_on:
+      - postgres
+    networks:
+      - shareit-network
+
+  shareit-gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: shareit-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SHAREIT_SERVER_URL: http://shareit-server:9090
+    depends_on:
+      - shareit-server
+    networks:
+      - shareit-network
+
+networks:
+  shareit-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
