@@ -19,7 +19,7 @@ public class BaseClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity<Object> get(String path) {
+    public ResponseEntity<Object> get(String path) {
         return get(path, null, null);
     }
 
@@ -27,11 +27,11 @@ public class BaseClient {
         return get(path, userId, null);
     }
 
-    protected ResponseEntity<Object> get(String path, Long userId, @Nullable Map<String, Object> parameters) {
+    public ResponseEntity<Object> get(String path, Long userId, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.GET, path, userId, parameters, null);
     }
 
-    protected <T> ResponseEntity<Object> post(String path, T body) {
+    public <T> ResponseEntity<Object> post(String path, T body) {
         return post(path, null, null, body);
     }
 
@@ -55,7 +55,7 @@ public class BaseClient {
         return patch(path, userId, null, body);
     }
 
-    protected <T> ResponseEntity<Object> patch(String path, Long userId, @Nullable Map<String, Object> parameters, T body) {
+    public <T> ResponseEntity<Object> patch(String path, Long userId, @Nullable Map<String, Object> parameters, T body) {
         return makeAndSendRequest(HttpMethod.PATCH, path, userId, parameters, body);
     }
 
@@ -63,7 +63,7 @@ public class BaseClient {
         return delete(path, null, null);
     }
 
-    protected ResponseEntity<Object> delete(String path, long userId) {
+    public ResponseEntity<Object> delete(String path, long userId) {
         return delete(path, userId, null);
     }
 
