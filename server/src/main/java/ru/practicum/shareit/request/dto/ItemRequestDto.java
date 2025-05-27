@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.util.List;
 public class ItemRequestDto {
     private Long id;
 
+    @NotBlank(message = "validation.request.description.notBlank")
     private String description;
 
     private RequesterDto requester;

@@ -1,6 +1,9 @@
 package ru.practicum.shareit.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -9,10 +12,14 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Locale;
+
 @RestControllerAdvice
 @Slf4j
-@SuppressWarnings("unused")
+@AllArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final MessageSource messageSource;
 
     @ExceptionHandler({UserNotFoundException.class, ItemNotFoundException.class})
     public ResponseEntity<ApiError> handleNotFound(final RuntimeException e) {
@@ -47,14 +54,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValid(final MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiError> handleMethodArgumentNotValid(final MethodArgumentNotValidException e, Locale locale) {
         log.warn("Обнаружена ошибка {} при обработке запроса: возвращаем 400 Неверный запрос",
                 e.getClass().getSimpleName());
         FieldError fieldError = e.getBindingResult().getFieldError();
         String errorMessage = "Ошибка валидации";
 
         if (fieldError != null) {
-            errorMessage = fieldError.getDefaultMessage();
+            errorMessage = messageSource.getMessage(fieldError.getDefaultMessage(), null, locale);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiError(errorMessage, HttpStatus.BAD_REQUEST.value()));
