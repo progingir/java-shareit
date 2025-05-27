@@ -146,7 +146,7 @@
 											<limit>
 												<counter>CLASS</counter>
 												<value>MISSEDCOUNT</value>
-												<maximum>5</maximum>
+												<maximum>6</maximum>
 											</limit>
 										</limits>
 									</rule>
