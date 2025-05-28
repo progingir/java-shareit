@@ -1,9 +1,11 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.event.BookingCreatedEvent;
 import ru.practicum.shareit.exception.ForbiddenAccessException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -23,6 +25,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, Long userId) {
@@ -64,6 +67,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.WAITING);
 
         Booking savedBooking = bookingRepository.save(booking);
+        eventPublisher.publishEvent(new BookingCreatedEvent(this, savedBooking));
         return bookingMapper.toDto(savedBooking);
     }
 
